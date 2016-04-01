@@ -34,6 +34,10 @@ documenting this in text -- there are better tools (we've used Swagger previousl
 
 Creates a new account with zero balance and returns it, returns Status.CREATED if successful.
 
+Request: No data
+
+Response:
+
 ```
 {"id":"4c3b12a3-4d92-41fa-88e0-51dce4c175fa","balance":0.00}
 ```
@@ -49,26 +53,53 @@ clients parse the string format. I didn't do that for the sake of keeping things
 ### GET /accounts/:id ###
 
 Gets the account with the specified ID and returns Status.OK, or returns Status.NOT_FOUND if the account cannot be
-accessed. The account representation is the same as above.
+accessed. 
+
+Response: 
+
+```
+{"id":"4c3b12a3-4d92-41fa-88e0-51dce4c175fa","balance":0.00}
+```
 
 ### POST /accounts/:id/deposit ###
 
 Creates a deposit for the specified account, returning the updated account and Status.CREATED if successful, or
 Status.NOT_FOUND if the account cannot be accessed.
 
+Request:
+
 ```
-{"amount":0.00}
+{"amount":50.00}
+```
+
+Response:
+
+```
+{"id":"4c3b12a3-4d92-41fa-88e0-51dce4c175fa","balance":50.00}
 ```
 
 I have a feeling that there are better ways to model deposit/withdraw/transfer. These are verbs rather than nouns so
 representing them as resources feels a little wrong, but it felt the most appropriate out of the alternatives I could
 think of. I thought of deposit/withdrawal/transfer as different types of transaction that could be created, so I'm
-returning Status.CREATED in this case.
+returning Status.CREATED in this case. I'm returning the updated account because I assume that in many cases the client
+will want to see the updated balance, and this avoids them having to make another call.
 
 ### POST /accounts/:id/withdrawal ###
 
 Creates a withdrawal for the specified account, returning the updated account and Status.CREATED if successful, or
 Status.NOT_FOUND if the account cannot be accessed.
+
+Request:
+
+```
+{"amount":5.00}
+```
+
+Response:
+
+```
+{"id":"4c3b12a3-4d92-41fa-88e0-51dce4c175fa","balance":45.00}
+```
 
 Just the inverse of deposit, with the JSON representation. I thought of having a single class (say, Amount) rather than
 having Deposit and Withdrawal classes that are basically the same, but I thought these classes would diverge if more
@@ -76,11 +107,19 @@ detail were added to the example, so I kept them separate.
 
 ### POST /accounts/:id/transfer ###
 
-Creates a transfer from specified account to the target account, returning the updated account and Status.CREATED if
-successful, or Status.NOT_FOUND if either account cannot be accessed.
+Creates a transfer from specified account to the target account, returning the updated source account and Status.CREATED
+if successful, or Status.NOT_FOUND if either account cannot be accessed.
+
+Request:
 
 ```
-{"targetAccountId":"4c3b12a3-4d92-41fa-88e0-51dce4c175fa","amount":0.00}
+{"targetAccountId":"ffff12a3-4d92-41fa-88e0-51dce4c175fa","amount":20.00}
+```
+
+Response:
+
+```
+{"id":"4c3b12a3-4d92-41fa-88e0-51dce4c175fa","balance":25.00}
 ```
 
 ## Testing ##
